@@ -98,6 +98,12 @@ function gameBoard(size) {
   const getCellByPosition = (pos) =>
     board.cells.find((cell) => cell.position === pos);
 
+  const won = (array) =>
+    board.cells.every(
+      (cell) =>
+        cell.value.toString() === array[board.cells.indexOf(cell)].toString()
+    );
+
   return {
     getCells,
     createCells,
@@ -107,15 +113,13 @@ function gameBoard(size) {
     moveRight,
     moveUp,
     swapValues,
-    getAboveCell,
-    getBelowCell,
-    getRightCell,
-    getLeftCell,
+    won,
   };
 }
 
 function displayController() {
   const cells = document.querySelectorAll(".cell");
+  const winningPattern = [1, 2, 3, 4, 5, 6, 7, 8, "X"];
   let board = gameBoard(3);
   board.createCells();
   board.randomizeCellValues();
@@ -147,6 +151,8 @@ function displayController() {
         break;
     }
     renderCellValues();
+    if (board.won(winningPattern))
+      document.removeEventListener("keydown", handleKeyEvent);
   };
 
   const bindEvents = () => {
