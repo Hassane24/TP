@@ -114,11 +114,14 @@ function gameBoard(size) {
     moveUp,
     swapValues,
     won,
+    getCellX,
   };
 }
 
 function displayController() {
-  const cells = document.querySelectorAll(".cell");
+  const cellsContainer = document.querySelector(".container ");
+  const cells = [...document.querySelectorAll(".cell")];
+
   const winningPattern = [1, 2, 3, 4, 5, 6, 7, 8, "X"];
   let board = gameBoard(3);
   board.createCells();
@@ -151,6 +154,13 @@ function displayController() {
         break;
     }
     renderCellValues();
+    cellsContainer.querySelector(
+      `[position="${board.getCellX().position}"]`
+    ).style.backgroundColor = "yellow";
+
+    const numberedCells = cells.filter((cell) => cell.textContent !== "X");
+    numberedCells.forEach((cell) => (cell.style.backgroundColor = "white"));
+
     if (board.won(winningPattern))
       document.removeEventListener("keydown", handleKeyEvent);
   };
