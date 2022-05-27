@@ -121,15 +121,39 @@ function gameBoard(size) {
 function displayController() {
   const cellsContainer = document.querySelector(".container ");
   const cells = [...document.querySelectorAll(".cell")];
-
+  const overlay = document.querySelector("#overlay");
+  const modal = document.querySelector(".winning-modal");
+  const closeButton = document.querySelector(".close-btn");
+  const playAgainButton = document.querySelector(".play-again");
   const winningPattern = [1, 2, 3, 4, 5, 6, 7, 8, "X"];
   let board = gameBoard(3);
   board.createCells();
-  board.randomizeCellValues();
+  // board.randomizeCellValues();
 
   const init = () => {
     renderCellValues();
     bindEvents();
+  };
+
+  const openModal = (form) => {
+    if (form === null) return;
+    form.classList.add("active");
+    overlay.classList.add("active");
+  };
+
+  const closeModal = (form) => {
+    if (form === null) return;
+    form.classList.remove("active");
+    overlay.classList.remove("active");
+  };
+
+  const styleXCell = () => {
+    cellsContainer.querySelector(
+      `[position="${board.getCellX().position}"]`
+    ).style.backgroundColor = "yellow";
+
+    const numberedCells = cells.filter((cell) => cell.textContent !== "X");
+    numberedCells.forEach((cell) => (cell.style.backgroundColor = "white"));
   };
 
   const renderCellValues = () => {
@@ -137,6 +161,8 @@ function displayController() {
       cells[i].textContent = board.getCells()[i].value;
     }
   };
+
+  // Event functions
 
   const handleKeyEvent = (e) => {
     switch (e.key) {
@@ -154,19 +180,36 @@ function displayController() {
         break;
     }
     renderCellValues();
-    cellsContainer.querySelector(
-      `[position="${board.getCellX().position}"]`
-    ).style.backgroundColor = "yellow";
+    styleXCell();
 
-    const numberedCells = cells.filter((cell) => cell.textContent !== "X");
-    numberedCells.forEach((cell) => (cell.style.backgroundColor = "white"));
-
-    if (board.won(winningPattern))
+    if (board.won(winningPattern)) {
       document.removeEventListener("keydown", handleKeyEvent);
+      openModal(modal);
+    }
   };
+
+  const playAgain = () => {
+    cells.forEach((cell) => (cell.style.backgroundColor = "white"));
+    document.addEventListener("keydown", handleKeyEvent);
+    closeModal(modal);
+    board.randomizeCellValues();
+    renderCellValues();
+  };
+
+  // Events
 
   const bindEvents = () => {
     document.addEventListener("keydown", handleKeyEvent);
+
+    overlay.addEventListener("click", () => {
+      closeModal(modal);
+    });
+
+    closeButton.addEventListener("click", () => {
+      closeModal(modal);
+    });
+
+    playAgainButton.addEventListener("click", playAgain);
   };
 
   return { init };
