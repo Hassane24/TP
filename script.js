@@ -53,6 +53,7 @@ function gameBoard(size) {
   const getRightCell = () => {
     const cellX = getCellX();
     const rightCol = [3, 6, 9];
+    // checks if X is on the right column
     if (checkForCollisions(rightCol, cellX)) return null;
     const rightCell = getCellByPosition(cellX.position + 1);
     return rightCell;
@@ -61,6 +62,7 @@ function gameBoard(size) {
   const getLeftCell = () => {
     const cellX = getCellX();
     const leftCol = [1, 4, 7];
+    // checks if X is on the left column
     if (checkForCollisions(leftCol, cellX)) return null;
     const leftCell = getCellByPosition(cellX.position - 1);
     return leftCell;
@@ -69,6 +71,7 @@ function gameBoard(size) {
   const getAboveCell = () => {
     const cellX = getCellX();
     const upperRow = [1, 2, 3];
+    // checks if X is on the upper row
     if (checkForCollisions(upperRow, cellX)) return null;
     const aboveCell = getCellByPosition(cellX.position - size);
     return aboveCell;
@@ -77,6 +80,7 @@ function gameBoard(size) {
   const getBelowCell = () => {
     const cellX = getCellX();
     const lowerRow = [7, 8, 9];
+    // checks if X is on the lower row
     if (checkForCollisions(lowerRow, cellX)) return null;
     const belowCell = getCellByPosition(cellX.position + size);
     return belowCell;
@@ -119,12 +123,19 @@ function gameBoard(size) {
 }
 
 function displayController() {
+  // Cashing DOM Elements
   const cellsContainer = document.querySelector(".container ");
   const cells = [...document.querySelectorAll(".cell")];
   const overlay = document.querySelector("#overlay");
   const modal = document.querySelector(".winning-modal");
   const closeButton = document.querySelector(".close-btn");
   const playAgainButton = document.querySelector(".play-again");
+  const timeDisplay = document.querySelector(".timer-display");
+  const shuffleButton = document.querySelector(".shuffle");
+  let ms = 0;
+  let secs = 0;
+  let minutes = 0;
+  let intervalID;
   const winningPattern = [1, 2, 3, 4, 5, 6, 7, 8, "X"];
   let board = gameBoard(3);
   board.createCells();
@@ -135,16 +146,26 @@ function displayController() {
     bindEvents();
   };
 
-  const openModal = (form) => {
-    if (form === null) return;
-    form.classList.add("active");
-    overlay.classList.add("active");
-  };
+  const updateTime = () => {
+    ms++;
+    if (ms > 99) {
+      ms = 0;
+      secs++;
+    }
 
-  const closeModal = (form) => {
-    if (form === null) return;
-    form.classList.remove("active");
-    overlay.classList.remove("active");
+    if (secs > 59) {
+      secs = 0;
+      minutes++;
+    }
+
+    const zeroAdder = (value) =>
+      ("0" + value).length > 2 ? value : "0" + value;
+
+    ms = zeroAdder(ms);
+    secs = zeroAdder(secs);
+    minutes = zeroAdder(minutes);
+
+    timeDisplay.textContent = `${minutes}:${secs}:${ms}`;
   };
 
   const styleXCell = () => {
@@ -181,10 +202,13 @@ function displayController() {
     }
     renderCellValues();
     styleXCell();
+    clearInterval(intervalID);
+    intervalID = setInterval(updateTime, 10);
 
     if (board.won(winningPattern)) {
       document.removeEventListener("keydown", handleKeyEvent);
       openModal(modal);
+      clearInterval(intervalID);
     }
   };
 
@@ -194,6 +218,28 @@ function displayController() {
     closeModal(modal);
     board.randomizeCellValues();
     renderCellValues();
+    clearInterval(intervalID);
+    intervalID = setInterval(updateTime, 10);
+  };
+
+  const openModal = (modal) => {
+    if (modal === null) return;
+    modal.classList.add("active");
+    overlay.classList.add("active");
+  };
+
+  const closeModal = (modal) => {
+    if (modal === null) return;
+    modal.classList.remove("active");
+    overlay.classList.remove("active");
+  };
+
+  const shuffle = () => {
+    board.randomizeCellValues();
+    renderCellValues();
+    clearInterval(intervalID);
+    timeDisplay.textContent = "00:00:00";
+    styleXCell();
   };
 
   // Events
@@ -210,6 +256,8 @@ function displayController() {
     });
 
     playAgainButton.addEventListener("click", playAgain);
+
+    shuffleButton.addEventListener("click", shuffle);
   };
 
   return { init };
