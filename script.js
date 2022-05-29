@@ -9,8 +9,17 @@ function gameBoard(size) {
   const createCells = () => {
     for (let i = 1; i <= board.size * board.size; i++) {
       if (i === 9)
-        return board.cells.push({ value: "X", position: i, isXCell: true });
-      else board.cells.push({ value: i, position: i, isXCell: false });
+        return board.cells.push({
+          value: "X",
+          position: i,
+          isXCell: true,
+        });
+      else
+        board.cells.push({
+          value: i,
+          position: i,
+          isXCell: false,
+        });
     }
   };
 
@@ -171,10 +180,10 @@ function displayController() {
   const styleXCell = () => {
     cellsContainer.querySelector(
       `[position="${board.getCellX().position}"]`
-    ).style.backgroundColor = "yellow";
+    ).style.backgroundColor = "#fbbf24";
 
     const numberedCells = cells.filter((cell) => cell.textContent !== "X");
-    numberedCells.forEach((cell) => (cell.style.backgroundColor = "white"));
+    numberedCells.forEach((cell) => (cell.style.backgroundColor = "#38bdf8"));
   };
 
   const renderCellValues = () => {
@@ -213,7 +222,7 @@ function displayController() {
   };
 
   const playAgain = () => {
-    cells.forEach((cell) => (cell.style.backgroundColor = "white"));
+    cells.forEach((cell) => (cell.style.backgroundColor = "#38bdf8"));
     document.addEventListener("keydown", handleKeyEvent);
     closeModal(modal);
     board.randomizeCellValues();
@@ -260,7 +269,9 @@ function displayController() {
     shuffleButton.addEventListener("click", shuffle);
   };
 
-  return { init };
+  return {
+    init,
+  };
 }
 
 displayController().init();
